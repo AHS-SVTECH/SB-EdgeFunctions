@@ -1,0 +1,15 @@
+name: Invoke Supabase Edge Function Daily
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Täglich um 0 Uhr UTC
+
+jobs:
+  invoke:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Invoke Edge Function
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/reset_userpos" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
