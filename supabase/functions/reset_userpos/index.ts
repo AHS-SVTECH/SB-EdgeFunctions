@@ -8,10 +8,11 @@ const supabaseKey = Deno.env.get('SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 serve(async () => {
-  // Aktualisiere das Feld 'There' in der Tabelle 'UserData'
+  // Aktualisiere das Feld 'There' in der Tabelle 'UserData' für alle Nutzer mit Rolle 'Schüler'
   const { data, error } = await supabase
     .from('UserData')
-    .update({ There: 'Heute nicht gesetzt' });
+    .update({ There: 'Heute nicht gesetzt' })
+    .eq('role', 'Schüler');
 
   if (error) {
     console.error("Fehler beim Aktualisieren des Feldes 'There':", error);
