@@ -1,16 +1,16 @@
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
 
 serve(async (req) => {
-  // Hole den Origin-Header der Anfrage
+  // Extrahiere den Origin-Header aus der Anfrage
   const origin = req.headers.get("origin");
 
-  // Liste der erlaubten Domains
+  // Liste erlaubter Ursprünge
   const allowedOrigins = [
     "https://wiwodigital.netlify.app",
-    "https://svtech-backendserver.rf.gd"
+    "https://svtech-backendserver.rf.gd",
   ];
 
-  // Überprüfe, ob der Origin erlaubt ist
+  // Wenn der Origin fehlt oder nicht erlaubt ist, blockiere die Anfrage
   if (!origin || !allowedOrigins.includes(origin)) {
     return new Response("Unauthorized origin", {
       status: 403,
@@ -22,7 +22,7 @@ serve(async (req) => {
     });
   }
 
-  // OPTIONS-Anfragen behandeln (CORS Preflight)
+  // OPTIONS-Anfragen (CORS Preflight) behandeln
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
@@ -34,18 +34,20 @@ serve(async (req) => {
     });
   }
 
-  // Anfrage weiterleiten oder eigene Logik ausführen
+  // Anfrage weiterverarbeiten
   try {
-    const data = await req.json(); // JSON-Daten aus der Anfrage lesen (falls vorhanden)
+    // Body der Anfrage (falls vorhanden) einlesen
+    const body = await req.json();
 
-    // Beispielantwort
-    return new Response(JSON.stringify({ message: "Request successful", data }), {
+    // Beispielantwort bei erlaubtem Origin
+    return new Response(JSON.stringify({ message: "Request successful", data: body }), {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": origin,
       },
     });
-  } catch (error) {
-    return new Response("Invalid request", { status: 400 });
+  } catch (_error) {
+    // Fehler behandeln, falls die JSON-Verarbeitung fehlschlägt
+    return new Response("Invalid JSON", { status: 400 });
   }
 });
